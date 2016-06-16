@@ -1,0 +1,212 @@
+*
+	-webkit-box-sizing: border-box
+	-moz-box-sizing: border-box
+	box-sizing: border-box
+*:before, *:after
+	-webkit-box-sizing: border-box
+	-moz-box-sizing: border-box
+	box-sizing: border-box
+
+html
+	font-family: sans-serif
+	-ms-text-size-adjust: 100%
+	-webkit-text-size-adjust: 100%
+body
+	margin: 0
+
+$xlarge-boolean: includexLarge
+$large-boolean: includeLarge
+$medium-boolean: includeMedium
+$small-boolean: includeSmall
+$add-push-pull: includePushPull
+
+$container-width: containerWidthPixel
+$container-percent-width: containerWidthPercent
+$container-decimal-width: $container-percent-width / 100%
+
+$small-screen: smallScreenPixel
+$medium-screen: mediumScreenPixel
+$large-screen: largeScreenPixel
+$xlarge-screen: xlargeScreenPixel
+$max-screen: 10000px
+
+$small-and-down: 0
+$medium-and-down: 0
+$large-and-down: 0
+$xlarge-and-down: 0
+
+$num-cols: numCols
+
+$gutter-width: 1.5rem
+$element-top-margin: $gutter-width/3
+$element-bottom-margin: ($gutter-width*2)/3
+
+@if not $xlarge-boolean and not $large-boolean and not $medium-boolean and $small-boolean
+	$small-and-down: "only screen and (max-width : #{$max-screen})"
+	@media #{$small-and-down}
+		.container
+			max-width: $container-decimal-width * $small-screen
+
+@if not $xlarge-boolean and not $large-boolean and $medium-boolean and $small-boolean
+	$small-and-down: "only screen and (max-width : #{$small-screen})"
+	$medium-and-down: "only screen and (max-width : #{$max-screen})"
+	@media #{$small-and-down}
+		.container
+			max-width: $container-decimal-width * $small-screen
+	@media #{$medium-and-down}
+		.container
+			max-width: $container-decimal-width * $medium-screen
+
+@if not $xlarge-boolean and $large-boolean and $medium-boolean and $small-boolean
+	$small-and-down: "only screen and (max-width : #{$small-screen})"
+	$medium-and-down: "only screen and (max-width : #{$medium-screen})"
+	$large-and-down: "only screen and (max-width : #{$max-screen})"
+	@media #{$small-and-down}
+		.container
+			max-width: $container-decimal-width * $small-screen
+	@media #{$medium-and-down}
+		.container
+			max-width: $container-decimal-width * $medium-screen
+	@media #{$large-and-down}
+		.container
+			max-width: $container-decimal-width * $large-screen
+
+@if $xlarge-boolean and $large-boolean and $medium-boolean and $small-boolean
+	$small-and-down: "only screen and (max-width : #{$small-screen})"
+	$medium-and-down: "only screen and (max-width : #{$medium-screen})"
+	$large-and-down: "only screen and (max-width : #{$large-screen})"
+	$xlarge-and-down: "only screen and (max-width : #{$max-screen})"
+	@media #{$small-and-down}
+		.container
+			max-width: $container-decimal-width * $small-screen
+	@media #{$medium-and-down}
+		.container
+			max-width: $container-decimal-width * $medium-screen
+	@media #{$large-and-down}
+		.container
+			max-width: $container-decimal-width * $large-screen
+	@media #{$xlarge-and-down}
+		.container
+			max-width: $container-decimal-width * $xlarge-screen
+
+.container
+	margin: 0 auto
+
+.container .row
+	margin-left: (-1 * $gutter-width / 2)
+	margin-right: (-1 * $gutter-width / 2)
+
+.row
+	margin-left: auto
+	margin-right: auto
+	margin-bottom: 20px
+
+	&:after
+		content: ""
+		display: table
+		clear: both
+
+.col
+	float: left
+	box-sizing: border-box
+	padding: 0 $gutter-width / 2
+
+	&[class*="push-"],
+	&[class*="pull-"]
+		position: relative
+
+	@if $small-boolean
+		@media #{$small-and-down}
+			$i: 1
+			@while $i <= $num-cols
+				$perc: unquote((100 / ($num-cols / $i)) + "%")
+				&.s#{$i}
+					width: $perc
+					margin-left: auto
+					left: auto
+					right: auto
+				$i: $i + 1
+
+			$i: 1
+			@while $i <= $num-cols
+				$perc: unquote((100 / ($num-cols / $i)) + "%")
+				&.offset-s#{$i}
+					margin-left: $perc
+				@if $add-push-pull
+					&.pull-s#{$i}
+						right: $perc
+					&.push-s#{$i}
+						left: $perc
+				$i: $i + 1
+
+	@if $medium-boolean
+		@media #{$medium-and-down}
+			$i: 1
+			@while $i <= $num-cols
+				$perc: unquote((100 / ($num-cols / $i)) + "%")
+				&.m#{$i}
+					width: $perc
+					margin-left: auto
+					left: auto
+					right: auto
+				$i: $i + 1
+
+			$i: 1
+			@while $i <= $num-cols
+				$perc: unquote((100 / ($num-cols / $i)) + "%")
+				&.offset-m#{$i}
+					margin-left: $perc
+				@if $add-push-pull
+					&.pull-m#{$i}
+						right: $perc
+					&.push-m#{$i}
+						left: $perc
+				$i: $i + 1
+
+	@if $large-boolean
+		@media #{$large-and-down}
+			$i: 1
+			@while $i <= $num-cols
+				$perc: unquote((100 / ($num-cols / $i)) + "%")
+				&.l#{$i}
+					width: $perc
+					margin-left: auto
+					left: auto
+					right: auto
+				$i: $i + 1
+
+			$i: 1
+			@while $i <= $num-cols
+				$perc: unquote((100 / ($num-cols / $i)) + "%")
+				&.offset-l#{$i}
+					margin-left: $perc
+				@if $add-push-pull
+					&.pull-l#{$i}
+						right: $perc
+					&.push-l#{$i}
+						left: $perc
+				$i: $i + 1
+
+	@if $xlarge-boolean
+		@media #{$xlarge-and-down}
+			$i: 1
+			@while $i <= $num-cols
+				$perc: unquote((100 / ($num-cols / $i)) + "%")
+				&.xl#{$i}
+					width: $perc
+					margin-left: auto
+					left: auto
+					right: auto
+				$i: $i + 1
+
+			$i: 1
+			@while $i <= $num-cols
+				$perc: unquote((100 / ($num-cols / $i)) + "%")
+				&.offset-xl#{$i}
+					margin-left: $perc
+				@if $add-push-pull
+					&.pull-xl#{$i}
+						right: $perc
+					&.push-xl#{$i}
+						left: $perc
+				$i: $i + 1
