@@ -28,7 +28,11 @@ const port = process.env.PORT || 3000
 
 let app  = express()
 app.use(bodyParser.urlencoded({ extended: false }))
-app.use(express.static('./public'))
+//app.use(express.static('./public'))
+
+app.get('/', function( req, res, next){
+  res.send('test')
+})
 
 app.post('/sasscompile', function (req, res, next) {
 
@@ -44,7 +48,8 @@ app.post('/sasscompile', function (req, res, next) {
 	options.outputStyle = req.body.outputStyle
 
 	// read sass file and change variables
-	fs.readFile('./grid.sass', function (err, data) {
+	fs.readFile(__dirname + '/grid.sass', function (err, data) {
+     if (err) next(err)
 		// replace data and create temp file path
 		data = data.toString().replace('smallScreenPixel', options.sizeSmall+'px').replace('mediumScreenPixel', options.sizeMedium+'px').replace('largeScreenPixel', options.sizeLarge+'px').replace('xlargeScreenPixel', options.sizexLarge+'px').replace('includexLarge', options.includexLarge).replace('includeLarge', options.includeLarge).replace('includeMedium', options.includeMedium).replace('includeSmall', options.includeSmall).replace('includePushPull', options.includePushPull).replace('containerWidthPercent', options.containerWidthPercent+"%").replace('numCols', options.numCols)
 
@@ -76,34 +81,36 @@ app.post('/sasscompile', function (req, res, next) {
 })
 
 app.use('*', function (err, req, res, next){
+  console.log(err)
 	fs.appendFile('./error.txt', err, (err) => {
 		res.send("Sorry, something went wrong. I've been notified so I can fix it.")
 	})
 })
 
+
 // create server object
 let server = http.createServer(app)
 // booting up server function
 let boot = function() {
-	server.listen(port, function() {
-		console.log('Express server listening on port ', port)
-	})
+  server.listen(port, function() {
+    console.log('Express server listening on port', port)
+  })
 }
 // shutdown server function
 let shutdown = function() {
-	server.close()
+  server.close()
 }
 
 // if main module then start server else pass to exports
-if(! require.parent){
-	boot()
+if(require.main === module){
+  boot()
 } else {
-	console.log('Running app as module')
-	module.exports = {
-		boot: boot,
-		shutdown: shutdown,
-		port: port,
-		server: server,
-		app: app
-	}
+  console.log('Running gridGenerator app as module')
+  module.exports = {
+    boot: boot,
+    shutdown: shutdown,
+    port: port,
+    server: server,
+    app: app
+  }
 }
