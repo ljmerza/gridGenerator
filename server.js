@@ -6,12 +6,7 @@ let express  = require('express'),
 	fs = require('fs')
 
 const options = {
-	includeSmall: false,
-	includeMedium: false,
-	includeLarge: false,
-	includexLarge: false,
-
-	includePushPull: false,
+	includePushPull: true,
 
 	sizeSmall: 600,
 	sizeMedium: 992,
@@ -29,60 +24,60 @@ const options = {
 		compressed: 'compressed'
 	}
 }
-const port = process.env.PORT || 8080
+const port = process.env.PORT || 3000
 
 let app  = express()
-app.set('view engine', 'ejs')
 app.use(bodyParser.urlencoded({ extended: false }))
+app.use(express.static('./public'))
 
-app.get('/', function (req, res, next) {
-	res.send('')
-})
+app.post('/sasscompile', function (req, res, next) {
 
-app.get('/sasscompile', function (req, res, next) {
-	// change options based on user input
-	options.includeSmall = req.body.includeSmall
-	options.includeMedium = req.body.includeMedium
-	options.includeLarge = req.body.includeLarge
-	options.includexLarge = req.body.includexLarge
 	options.includePushPull = req.body.includePushPull
+
 	options.sizeSmall = req.body.sizeSmall
 	options.sizeMedium = req.body.sizeMedium
 	options.sizeLarge = req.body.sizeLarge
 	options.sizexLarge = req.body.sizexLarge
+
 	options.containerWidthPercent = req.body.containerWidthPercent
-	options.containerWidthPixel = req.body.containerWidthPixel
 	options.numCols = req.body.numCols
 	options.outputStyle = req.body.outputStyle
 
 	// read sass file and change variables
 	fs.readFile('./grid.sass', function (err, data) {
-
 		// replace data and create temp file path
-		data = data.toString().replace('smallScreenPixel', options.sizeSmall+'px').replace('mediumScreenPixel', options.sizeMedium+'px').replace('largeScreenPixel', options.sizeLarge+'px').replace('xlargeScreenPixel', options.sizexLarge+'px').replace('includexLarge', options.includexLarge).replace('includeLarge', options.includeLarge).replace('includeMedium', options.includeMedium).replace('includeSmall', options.includeSmall).replace('includePushPull', options.includePushPull).replace('containerWidthPixel', options.containerWidthPixel+'px').replace('containerWidthPercent', options.containerWidthPercent+"%").replace('numCols', options.numCols)
-		let filePath = './' + Math.random() + '.sass'
+		data = data.toString().replace('smallScreenPixel', options.sizeSmall+'px').replace('mediumScreenPixel', options.sizeMedium+'px').replace('largeScreenPixel', options.sizeLarge+'px').replace('xlargeScreenPixel', options.sizexLarge+'px').replace('includexLarge', options.includexLarge).replace('includeLarge', options.includeLarge).replace('includeMedium', options.includeMedium).replace('includeSmall', options.includeSmall).replace('includePushPull', options.includePushPull).replace('containerWidthPercent', options.containerWidthPercent+"%").replace('numCols', options.numCols)
+
+		let rand = Math.random()
+		let filePath = './' + rand + '.sass'
 
 		// write a temp file for sass to read
-		fs.writeFile(filePath, data, err => {
-			if (err) return err
-
+		fs.writeFile(filePath, data, (err) => {
+			if (err) next(err)
 			// compile sass file
 			sass.render({
 				file: filePath,
-				outputStyle: req.body.outputStyle || options.outputStyle.compressed
+				outputStyle: req.body.outputStyle
 				},
 				function(err, result) { 
+					if (err) next(err)
 					// delete temp file no matter what
 					fs.unlink(filePath, (err) => {
-						if (err) return err
+						if (err) next(err)
 					})
-					if (err) return err
-
-					// if no errors then send file
-					res.send(result.css.toString())
+					res.setHeader('Content-Type', 'application/octet-stream')
+					res.setHeader('Content-disposition', 'attachment; filename=grid.css')
+					res.writeHead(200)
+					res.end(result.css.toString())
 				}
 			)
 		})	
+	})
+})
+
+app.use('*', function (err, req, res, next){
+	fs.appendFile('./error.txt', err, (err) => {
+		res.send("Sorry, something went wrong. I've been notified so I can fix it.")
 	})
 })
 
@@ -103,7 +98,7 @@ let shutdown = function() {
 if(! require.parent){
 	boot()
 } else {
-	console.log('Running ap as module')
+	console.log('Running app as module')
 	module.exports = {
 		boot: boot,
 		shutdown: shutdown,
