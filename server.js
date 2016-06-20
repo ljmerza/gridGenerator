@@ -28,11 +28,6 @@ const port = process.env.PORT || 3000
 
 let app  = express()
 app.use(bodyParser.urlencoded({ extended: false }))
-//app.use(express.static('./public'))
-
-app.get('/', function( req, res, next){
-  res.send('test')
-})
 
 app.post('/sasscompile', function (req, res, next) {
 
@@ -48,45 +43,30 @@ app.post('/sasscompile', function (req, res, next) {
 	options.outputStyle = req.body.outputStyle
 
 	// read sass file and change variables
-	fs.readFile(__dirname + '/grid.sass', function (err, data) {
+	fs.readFile(__dirname + '/grid.scss', function (err, data) {
      if (err) next(err)
 		// replace data and create temp file path
 		data = data.toString().replace('smallScreenPixel', options.sizeSmall+'px').replace('mediumScreenPixel', options.sizeMedium+'px').replace('largeScreenPixel', options.sizeLarge+'px').replace('xlargeScreenPixel', options.sizexLarge+'px').replace('includexLarge', options.includexLarge).replace('includeLarge', options.includeLarge).replace('includeMedium', options.includeMedium).replace('includeSmall', options.includeSmall).replace('includePushPull', options.includePushPull).replace('containerWidthPercent', options.containerWidthPercent+"%").replace('numCols', options.numCols)
 
 		let rand = Math.random()
 		let filePath = './' + rand + '.sass'
-
-		// write a temp file for sass to read
-		fs.writeFile(filePath, data, (err) => {
-			if (err) next(err)
-			// compile sass file
-			sass.render({
-				file: filePath,
-				outputStyle: req.body.outputStyle
-				},
-				function(err, result) { 
-					if (err) next(err)
-					// delete temp file no matter what
-					fs.unlink(filePath, (err) => {
-						if (err) next(err)
-					})
-					res.setHeader('Content-Type', 'application/octet-stream')
-					res.setHeader('Content-disposition', 'attachment; filename=grid.css')
-					res.writeHead(200)
-					res.end(result.css.toString())
-				}
-			)
-		})	
+		
+    // compile sass file  
+    sass.render({
+		  data: data,
+			outputStyle: req.body.outputStyle
+		  },
+			function(err, result) { 
+			  if (err) next(err)
+             
+				res.setHeader('Content-Type', 'application/octet-stream')
+				res.setHeader('Content-disposition', 'attachment; filename=grid.css')
+				res.writeHead(200)
+				res.end(result.css.toString())
+			}
+		)	
 	})
 })
-
-app.use('*', function (err, req, res, next){
-  console.log(err)
-	fs.appendFile('./error.txt', err, (err) => {
-		res.send("Sorry, something went wrong. I've been notified so I can fix it.")
-	})
-})
-
 
 // create server object
 let server = http.createServer(app)
