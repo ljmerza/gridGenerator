@@ -32,7 +32,7 @@ gulp.task('html', () => {
 // Node-sync task
 gulp.task('nodemon', () => {
     nodemon({
-        script: 'server.js',
+        script: 'dev-server.js',
         ignore: ['./gulpfile.js','./node_modules','./db', './public']
     })
     .on('restart', () => {
