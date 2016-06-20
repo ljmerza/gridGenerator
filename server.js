@@ -44,21 +44,19 @@ app.post('/sasscompile', function (req, res, next) {
 
 	// read sass file and change variables
 	fs.readFile(__dirname + '/grid.scss', function (err, data) {
-     if (err) next(err)
+		if (err) next(err)
 		// replace data and create temp file path
 		data = data.toString().replace('smallScreenPixel', options.sizeSmall+'px').replace('mediumScreenPixel', options.sizeMedium+'px').replace('largeScreenPixel', options.sizeLarge+'px').replace('xlargeScreenPixel', options.sizexLarge+'px').replace('includexLarge', options.includexLarge).replace('includeLarge', options.includeLarge).replace('includeMedium', options.includeMedium).replace('includeSmall', options.includeSmall).replace('includePushPull', options.includePushPull).replace('containerWidthPercent', options.containerWidthPercent+"%").replace('numCols', options.numCols)
 
-		let rand = Math.random()
-		let filePath = './' + rand + '.sass'
-		
-    // compile sass file  
-    sass.render({
-		  data: data,
+		// compile sass file  
+		sass.render({
+			data: data,
 			outputStyle: req.body.outputStyle
-		  },
+			},
 			function(err, result) { 
-			  if (err) next(err)
-             
+				if (err) next(err)
+
+				// force browser to download file
 				res.setHeader('Content-Type', 'application/octet-stream')
 				res.setHeader('Content-disposition', 'attachment; filename=grid.css')
 				res.writeHead(200)
@@ -68,29 +66,30 @@ app.post('/sasscompile', function (req, res, next) {
 	})
 })
 
+
+
 // create server object
 let server = http.createServer(app)
 // booting up server function
 let boot = function() {
-  server.listen(port, function() {
-    console.log('Express server listening on port', port)
-  })
+	server.listen(port, function() {
+		console.log('Express server listening on port', port)
+	})
 }
 // shutdown server function
 let shutdown = function() {
-  server.close()
+	server.close()
 }
-
 // if main module then start server else pass to exports
 if(require.main === module){
-  boot()
+	boot()
 } else {
-  console.log('Running gridGenerator app as module')
-  module.exports = {
-    boot: boot,
-    shutdown: shutdown,
-    port: port,
-    server: server,
-    app: app
-  }
+	console.log('Running gridGenerator app as module')
+	module.exports = {
+		boot: boot,
+		shutdown: shutdown,
+		port: port,
+		server: server,
+		app: app
+	}
 }
