@@ -60,7 +60,7 @@ app.post('/sasscompile', function (req, res, next) {
 				res.setHeader('Content-Type', 'application/octet-stream')
 				res.setHeader('Content-disposition', 'attachment; filename=grid.css')
 				res.writeHead(200)
-				res.end(result.css.toString())
+				return res.end(result.css.toString())
 			}
 		)	
 	})
